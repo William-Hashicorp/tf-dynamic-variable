@@ -14,3 +14,17 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "core_module_subdir" {
+  description = "Subdirectory name under ./modules for the core S3 child module."
+  type        = string
+  default     = "s3-core"
+  const       = true
+}
+
+variable "core_module_subdir_name" {
+  description = "Duplicate const input used to build a local value for the child module source."
+  type        = string
+  default     = "s3-core"
+  const       = true
+}
