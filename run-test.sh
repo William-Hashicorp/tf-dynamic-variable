@@ -11,12 +11,6 @@ fi
 echo "Using: $($TF_BIN version | head -1)"
 echo
 
-if [[ "${SKIP_PUBLISH:-}" != "1" ]]; then
-  echo "==> Step 0: publish module to TFC private registry (if needed)"
-  "$ROOT_DIR/scripts/publish-module.sh"
-  echo
-fi
-
 echo "==> Step 1: init (dynamic module source + version)"
 $TF_BIN -chdir="$ROOT_DIR" init -upgrade
 

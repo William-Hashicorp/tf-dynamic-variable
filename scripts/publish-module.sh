@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Legacy manual tarball publish. Prefer scripts/link-module-vcs.sh for VCS-linked publishing.
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
