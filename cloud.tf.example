@@ -1,0 +1,15 @@
+# Optional: copy to cloud.tf to run this test in HCP Terraform.
+#
+# terraform {
+#   cloud {
+#     organization = "William-Hashicorp"
+#     workspaces {
+#       name = "tf-dynamic-module-source-test"
+#     }
+#   }
+# }
+#
+# Workspace settings:
+# - Terraform version: >= 1.15.0
+# - Execution mode: Remote
+# - AWS credentials configured for plan/apply (optional)
