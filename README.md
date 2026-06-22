@@ -100,6 +100,9 @@ The test in this repo confirms both **variable interpolation** and **locals** ag
 ├── locals.tf
 ├── scripts/
 │   ├── link-module-vcs.sh    # Link module to GitHub + publish via git tags
+│   ├── tfc-apply.sh          # Queue apply run on HCP Terraform workspace
+│   ├── tfc-destroy.sh        # Queue destroy run and wait for completion
+│   ├── tfc-common.sh         # Shared TFC API helpers (run polling)
 │   └── publish-module.sh     # Legacy manual tarball upload (deprecated)
 └── run-test.sh               # init / validate / plan test
 ```
@@ -122,7 +125,18 @@ Local test (requires Terraform `>= 1.15.0` and AWS credentials for `plan`):
 ./run-test.sh
 ```
 
-Remote test on HCP Terraform: open the [workspace](https://app.terraform.io/app/William-Hashicorp/workspaces/tf-dynamic-module-source-test) and queue a new run, or push changes to `main`.
+Remote test on HCP Terraform (uses workspace AWS credentials from project variable set):
+
+```bash
+bash scripts/tfc-apply.sh
+bash scripts/tfc-destroy.sh   # clean up test S3 buckets afterwards
+```
+
+Or open the [workspace](https://app.terraform.io/app/William-Hashicorp/workspaces/tf-dynamic-module-source-test) and queue a run from the UI.
+
+### HCP Terraform run polling note
+
+Successful **destroy** runs report `status=applied` (not `destroyed`). Use the run's `is-destroy` attribute to distinguish destroy from apply. The `scripts/tfc-*.sh` helpers poll for terminal statuses including `applied`, `planned_and_finished`, and `errored`.
 
 ## Publish module updates
 
