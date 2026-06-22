@@ -14,16 +14,6 @@ Validated end-to-end in the **William-Hashicorp** org.
 | Private registry module | `app.terraform.io/William-Hashicorp/william-dynamic-s3/aws` @ `1.0.0` |
 | VCS publishing | Linked to GitHub monorepo subfolder `registry-module/william-dynamic-s3` |
 
-**Apply outputs (TFC run `run-M3AnuTboHvaba1EA`):**
-
-| Output | Value |
-|--------|--------|
-| `resolved_module_source_from_vars` | `app.terraform.io/William-Hashicorp/william-dynamic-s3/aws` |
-| `resolved_module_source_from_locals` | `app.terraform.io/William-Hashicorp/william-dynamic-s3/aws` |
-| `resolved_module_version` | `1.0.0` |
-| `bucket_names.from_vars` | `tf-dynamic-module-src-test-vars-20260622110100074200000001` |
-| `bucket_names.from_locals` | `tf-dynamic-module-src-test-locals-20260622110100074300000002` |
-
 **HCP Terraform workspace:** [tf-dynamic-module-source-test](https://app.terraform.io/app/William-Hashicorp/workspaces/tf-dynamic-module-source-test)
 
 - **Project:** `terraform-oss-ent-demo`
