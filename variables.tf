@@ -28,7 +28,7 @@ variable "s3_module_provider" {
 variable "s3_module_version" {
   description = "Private registry module version."
   type        = string
-  default     = "1.0.2"
+  default     = "1.0.0"
   const       = true
 }
 
