@@ -1,6 +1,8 @@
 .terraform/
+.terraform.lock.hcl
 .bin/
 tfplan
+cloud.tf.example
 *.tfstate
 *.tfstate.*
 crash.log
