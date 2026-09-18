@@ -46,7 +46,7 @@ tfc_poll_run() {
     status="$(echo "$response" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['attributes']['status'])")"
     is_destroy="$(echo "$response" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['attributes']['is-destroy'])")"
 
-    echo "[$attempt] status=${status} is-destroy=${is_destroy}"
+    echo "[$attempt] status=${status} is-destroy=${is_destroy}" >&2
 
     if tfc_run_is_terminal "$status"; then
       echo "$response"

@@ -1,29 +1,30 @@
 # tf-dynamic-variable
 
-Monorepo for testing Terraform 1.15+ dynamic module `source` and `version` attributes against the HCP Terraform private registry.
+Monorepo for testing Terraform 1.16+ dynamic module `source` and `version` attributes against the HCP Terraform private registry.
 
 ## Test results
 
-Validated end-to-end in the **William-Hashicorp** org.
+Validated end-to-end in the **William-Hashicorp** org with **Terraform 1.16.3**.
 
 | Test | Result |
 |------|--------|
-| Local `terraform init` (TF 1.15.6) | Passed — both modules downloaded via dynamic `source` / `version` |
+| Local `terraform init` (TF 1.16.3) | Passed — consumer + nested `s3_core` modules resolved via dynamic `source` / `version` |
 | Local `terraform validate` | Passed |
-| HCP Terraform remote run | Passed — plan and apply in workspace `tf-dynamic-module-source-test` |
-| Private registry module | `app.terraform.io/William-Hashicorp/william-dynamic-s3/aws` @ `1.0.0` |
-| VCS publishing | Linked to GitHub monorepo subfolder `registry-module/william-dynamic-s3` |
+| HCP Terraform private registry ingress | Passed for `william-dynamic-s3` **1.1.0** (const-based nested `source`) |
+| HCP Terraform remote apply | Passed — workspace `tf-dynamic-module-source-test` (`run-aA1BUbQ5r1HMjvAp`) |
+| Earlier ingress regression | `1.0.2` still shows `reg_ingress_failed`; retest succeeded on `1.1.0` |
 
 **HCP Terraform workspace:** [tf-dynamic-module-source-test](https://app.terraform.io/app/William-Hashicorp/workspaces/tf-dynamic-module-source-test)
 
 - **Project:** `terraform-oss-ent-demo`
-- **Terraform version:** `1.15.6`
+- **Terraform version:** `1.16.3`
 - **VCS:** `William-Hashicorp/tf-dynamic-variable` (branch `main`)
 - **AWS credentials:** inherited from project variable set `aws_doormat_credentials`
+- **Registry module:** `app.terraform.io/William-Hashicorp/william-dynamic-s3/aws` @ `1.1.0`
 
 ## How dynamic module `source` and `version` works
 
-Terraform **1.15.0+** allows `module` blocks to use **variables** and **locals** in `source` and `version`. Before 1.15, both attributes had to be static string literals.
+Terraform **1.15.0+** (tested here on **1.16.3**) allows `module` blocks to use **variables** and **locals** in `source` and `version`. Before 1.15, both attributes had to be static string literals.
 
 ### Why `const = true` is required
 
@@ -40,7 +41,7 @@ variable "tfc_org" {
 
 variable "s3_module_version" {
   type    = string
-  default = "1.0.0"
+  default = "1.1.0"
   const   = true
 }
 ```
@@ -52,7 +53,7 @@ Rules:
 - Values can come from defaults, `.tfvars`, `-var`, `TF_VAR_*`, or HCP Terraform workspace variables
 - After changing `source` or `version`, re-run `terraform init` (use `-upgrade` when needed)
 
-### Variables in `source` and `version`
+### Variables in `source` and `version` (workspace / consumer)
 
 ```hcl
 module "s3_bucket_from_vars" {
@@ -63,7 +64,7 @@ module "s3_bucket_from_vars" {
 
 Terraform resolves the interpolated string at init, then downloads the module from the private registry.
 
-### Locals in `source` and `version`
+### Locals in `source` and `version` (workspace / consumer)
 
 ```hcl
 locals {
@@ -77,17 +78,9 @@ module "s3_bucket_from_locals" {
 }
 ```
 
-Locals work the same way, as long as they only reference `const` variables (not resources, data sources, or plan-time values).
+### Const rules inside a published registry module
 
-### Private registry support
-
-This works with **HCP Terraform private registry** modules using the standard address format:
-
-```text
-app.terraform.io/<org>/<module-name>/<provider>
-```
-
-The test in this repo confirms both **variable interpolation** and **locals** against a VCS-linked private module published from a monorepo subfolder.
+As of the HCP Terraform registry ingress update validated with module **1.1.0**, published modules may also use `const` variables / locals for **child** `module.source` paths (for example `./modules/${var.core_module_subdir}`). Local Terraform 1.16.3 and registry ingress both accept this.
 
 ## Layout
 
@@ -115,11 +108,12 @@ The test in this repo confirms both **variable interpolation** and **locals** ag
 - **Source path in monorepo:** `registry-module/william-dynamic-s3`
 - **Registry address:** `app.terraform.io/William-Hashicorp/william-dynamic-s3/aws`
 - **Publishing:** VCS-linked (`git_tag`) from the monorepo subfolder
-- **Tag prefix:** `william-dynamic-s3/` (e.g. `william-dynamic-s3/v1.0.0`)
+- **Tag prefix:** `william-dynamic-s3/` (e.g. `william-dynamic-s3/v1.1.0`)
+- **Current test version:** `1.1.0`
 
 ## Quick start
 
-Local test (requires Terraform `>= 1.15.0` and AWS credentials for `plan`):
+Local test (requires Terraform `>= 1.16.0` and AWS credentials for `plan`):
 
 ```bash
 ./run-test.sh
@@ -143,7 +137,7 @@ Successful **destroy** runs report `status=applied` (not `destroyed`). Use the r
 Push a new git tag, then bump the consumer version:
 
 ```bash
-MODULE_VERSION=1.0.1 bash scripts/link-module-vcs.sh
+MODULE_VERSION=1.1.1 bash scripts/link-module-vcs.sh
 ```
 
 Update `s3_module_version` in `terraform.tfvars` and re-run `./run-test.sh` or trigger a workspace run.
